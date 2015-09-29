@@ -1,5 +1,6 @@
 package org.catais.brw.verifikation;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
@@ -24,7 +25,7 @@ public class App {
 		options.addOption(null, "dbusr", true, "User name to access database.");
 		options.addOption(null, "dbpwd", true, "Password of user used to access database.");
 		options.addOption(null, "defaultSrsAuth", true, "Default SRS authority EPSG.");
-		options.addOption(null, "defaultSrsCode ", true, "Default SRS code 21781.");
+		options.addOption(null, "defaultSrsCode ", true, "Default SRS code 2056.");
 		options.addOption(null, "model", true, "Name of ili-model to generate an db schema for.");
 		options.addOption(null, "dbschema", true, "The name of the (root) schema in the database. '_trans' and '_verikation' will be created too. Defaults to not set.");
 		
@@ -61,7 +62,7 @@ public class App {
 			String defaultSrsAuth = cmd.getOptionValue("defaultSrsAuth", "EPSG");
 			params.put("defaultSrsAuth", defaultSrsAuth);
 			
-			String defaultSrsCode = cmd.getOptionValue("defaultSrsCode", "21781");
+			String defaultSrsCode = cmd.getOptionValue("defaultSrsCode", "2056");
 			params.put("defaultSrsCode", defaultSrsCode);
 			
 			String model = cmd.getOptionValue("model");
@@ -76,11 +77,16 @@ public class App {
 			}
 			//params.put("dbschema", dbschema);
 
-			// Initialize the database.
+			// Initialize the two interlis schemas.
 //			Ili2pg ili2pg = new Ili2pg(params);
 //			ili2pg.initSchema(dbschema);
 //			ili2pg.initSchema(dbschema + "_trans");
 
+			// Initialize the verification schema.
+			PostgresqlDatabase PgObj = new PostgresqlDatabase(params);
+			PgObj.initSchema(dbschema + "_verikation");
+			
+			
 			
 						
 		} catch (MissingOptionException e) {
@@ -90,6 +96,8 @@ public class App {
 			formatter.printHelp("brw-initdb.jar", options);
 		
 		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 

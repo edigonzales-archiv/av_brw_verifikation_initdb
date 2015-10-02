@@ -78,7 +78,6 @@ public class App {
 			if (dbschema == null) {
 				throw new MissingOptionException("dbschema");
 			}
-			//params.put("dbschema", dbschema);
 			
 			// We create a single jdbc connection since we want all the work 
 			// within one transaction.
@@ -94,9 +93,9 @@ public class App {
 			
 			conn.commit();
 
-			// Initialize the verification schema.
-			PostgresqlDatabase PgObj = new PostgresqlDatabase(params);
-			PgObj.initSchema(dbschema + "_verikation");
+			// Initialize the schema for the verification tables.
+//			PostgresqlDatabase PgObj = new PostgresqlDatabase(params);
+//			PgObj.initSchema(dbschema + "_verikation");
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -108,9 +107,10 @@ public class App {
 			formatter.printHelp("brw-initdb.jar", options);
 		} catch (ParseException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		System.out.println("Hallo Stefan.");
 

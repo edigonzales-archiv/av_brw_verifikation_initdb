@@ -11,6 +11,7 @@ import java.util.HashMap;
 import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.ili2db.base.Ili2db;
 import ch.ehi.ili2db.base.Ili2dbException;
+import ch.ehi.ili2db.extended.Ili2dbTransactional;
 import ch.ehi.ili2db.gui.Config;
 import ch.ehi.ili2pg.converter.PostgisGeometryConverter;
 import ch.ehi.sqlgen.generator_impl.jdbc.GeneratorPostgresql;
@@ -58,7 +59,7 @@ public class Ili2pg {
 		
 		try {
 			Config config = ili2dbConfig();
-			Ili2db.runSchemaImport(config, "");
+			Ili2dbTransactional.runSchemaImport(config, "",conn);
 			
 			if (addAdditionalAttributes) {
 				alterTablesWithAdditionalColumns();
@@ -82,39 +83,25 @@ public class Ili2pg {
 	private void grantTablesToPublicRole() throws ClassNotFoundException, SQLException {
 		Class.forName("org.postgresql.Driver");
 
-        Connection con = null;
         Statement st = null;
-        ResultSet rs = null;
         String sql = null;
-
+        
+        sql = "GRANT USAGE ON SCHEMA " + dbschema + " TO " + grantRole + "; \n" +
+        		"GRANT SELECT ON ALL TABLES IN SCHEMA " + dbschema + " TO " + grantRole + ";";    			
         try {
-            con = DriverManager.getConnection(dburl);
-            con.setAutoCommit(false);
-
-			sql = "GRANT USAGE ON SCHEMA " + dbschema + " TO " + grantRole + "; \n" +
-				"GRANT SELECT ON ALL TABLES IN SCHEMA " + dbschema + " TO " + grantRole + ";";    			
-
-        	st = con.createStatement();
-        	st.execute(sql);
+        st = conn.createStatement();
+    	st.execute(sql);
         	
-        	st.close();
-    		con.commit();
+    	st.close();
         } finally {
             try {
-                if (rs != null) {
-                    rs.close();
-                }
                 if (st != null) {
                     st.close();
-                }
-                if (con != null) {
-                    con.close();
                 }
             } catch (SQLException e) {
             	e.printStackTrace();
             }
         }
-
 	}
 	
 	private void alterTablesWithAdditionalColumns() throws ClassNotFoundException, SQLException {
@@ -236,7 +223,7 @@ public class Ili2pg {
 		config.setMaxSqlNameLength("60");
 		config.setStrokeArcs("enable");
 						
-		config.setSqlNull("enable"); // be less restrictive
+		config.setSqlNull("enable"); 
 		config.setValue("ch.ehi.sqlgen.createGeomIndex", "True");
 		config.setCreateEnumCols("addTxtCol");
 				
@@ -245,9 +232,7 @@ public class Ili2pg {
 		
 //		EhiLogger.getInstance().setTraceFilter(false);
 		config.setLogfile("init-db.log");
-		
-		config.setJdbcConnection2(conn);
-	
+			
 		return config;
 	}
 }

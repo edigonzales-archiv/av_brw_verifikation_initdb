@@ -1,6 +1,9 @@
 package org.catais.brw.verifikation;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
@@ -76,36 +79,39 @@ public class App {
 				throw new MissingOptionException("dbschema");
 			}
 			//params.put("dbschema", dbschema);
+			
+			// We create a single jdbc connection since we want all the work 
+			// within one transaction.
+			String dburl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+dbdatabase;
+			Class.forName("org.postgresql.Driver");
+	        Connection conn = DriverManager.getConnection(dburl, dbusr, dbpwd);
+            conn.setAutoCommit(false);
 
-			// Initialize the two interlis schemas.
-//			Ili2pg ili2pg = new Ili2pg(params);
-//			ili2pg.initSchema(dbschema);
+			// Create the two interlis schemas.
+			Ili2pg ili2pg = new Ili2pg(params, conn);
+			ili2pg.initSchema(dbschema);
 //			ili2pg.initSchema(dbschema + "_trans");
+			
+			conn.commit();
 
 			// Initialize the verification schema.
 			PostgresqlDatabase PgObj = new PostgresqlDatabase(params);
 			PgObj.initSchema(dbschema + "_verikation");
 			
-			
-			
-						
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		} catch (MissingOptionException e) {
 			e.printStackTrace();
-			
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("brw-initdb.jar", options);
-		
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		
-		
-		
-		
-		
 		System.out.println("Hallo Stefan.");
 
 	}

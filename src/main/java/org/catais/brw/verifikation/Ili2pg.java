@@ -31,10 +31,14 @@ public class Ili2pg {
 	String defaultSrsAuth = null;
 	String defaultSrsCode = null;
 	
+	java.sql.Connection conn = null;
+	
 	String grantRole = "mspublic";
-	boolean addAdditionalAttributes = true;
+//	boolean addAdditionalAttributes = true;
+//	String grantRole = null;
+	boolean addAdditionalAttributes = false;
 		
-	public Ili2pg(HashMap<String,String> params) {
+	public Ili2pg(HashMap<String,String> params, java.sql.Connection conn) {
 		dbhost = params.get("dbhost");		
 		dbport = params.get("dbport");		
 		dbdatabase = params.get("dbdatabase");		
@@ -45,6 +49,8 @@ public class Ili2pg {
 		defaultSrsCode = params.get("defaultSrsCode");
 		
 		dburl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+dbdatabase+"?user="+dbusr+"&password="+dbpwd;
+		
+		this.conn = conn;
 	}
 	
 	public void initSchema(String dbschema) {
@@ -239,6 +245,8 @@ public class Ili2pg {
 		
 //		EhiLogger.getInstance().setTraceFilter(false);
 		config.setLogfile("init-db.log");
+		
+		config.setJdbcConnection2(conn);
 	
 		return config;
 	}

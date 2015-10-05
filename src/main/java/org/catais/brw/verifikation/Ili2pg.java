@@ -49,40 +49,28 @@ public class Ili2pg {
 		defaultSrsAuth = params.get("defaultSrsAuth");
 		defaultSrsCode = params.get("defaultSrsCode");
 		
-		dburl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+dbdatabase+"?user="+dbusr+"&password="+dbpwd;
+		dburl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+dbdatabase;
 		
 		this.conn = conn;
 	}
 	
-	public void initSchema(String dbschema) {
+	public void initSchema(String dbschema) throws Ili2dbException, SQLException {
 		this.dbschema = dbschema;
 		
-		try {
-			Config config = ili2dbConfig();
-			Ili2dbTransactional.runSchemaImport(config, "",conn);
-			
-			if (addAdditionalAttributes) {
-				alterTablesWithAdditionalColumns();
-			}
-			
-			if (grantRole != null) {
-				grantTablesToPublicRole();
-			}
-					
-		} catch (Ili2dbException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
+		Config config = ili2dbConfig();
+		Ili2dbTransactional.runSchemaImport(config, "", conn);
+
+		if (addAdditionalAttributes) {
+			//				alterTablesWithAdditionalColumns();
 		}
+
+		if (grantRole != null) {
+			grantTablesToPublicRole();
+		}
+
 	}
 	
-	private void grantTablesToPublicRole() throws ClassNotFoundException, SQLException {
-		Class.forName("org.postgresql.Driver");
-
+	private void grantTablesToPublicRole() throws SQLException {
         Statement st = null;
         String sql = null;
         
@@ -231,7 +219,7 @@ public class Ili2pg {
 		config.setDefaultSrsCode(defaultSrsCode);
 		
 //		EhiLogger.getInstance().setTraceFilter(false);
-		config.setLogfile("init-db.log");
+		config.setLogfile("brw-verifikation.log");
 			
 		return config;
 	}

@@ -127,6 +127,10 @@ public class App {
     			
             }
 			
+            
+            
+            // Beim Import wird zuerst immer gem_bfs gelöscht!!!!
+            
 			conn.commit();
 
 			

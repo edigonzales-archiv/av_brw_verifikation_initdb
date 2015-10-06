@@ -119,20 +119,22 @@ public class App {
 			// Initialize database (create empty schemas).
             if (initdb) {
     			Ili2pg ili2pg = new Ili2pg(params, conn);
-    			ili2pg.initSchema(dbschema);
-//    			ili2pg.initSchema(dbschema + "_trans");
-    			
+//    			ili2pg.initItfSchema(dbschema);
+//    			ili2pg.initItfSchema(dbschema + "_trans");
+    			ili2pg.initDataSchema(dbschema + "_verifikation");
     			
     			
     			
             }
 			
-//			conn.commit();
+			conn.commit();
 
 			
 			
-		} catch (Ili2dbException e) {
+		} catch (IOException e) {
 			e.printStackTrace();			
+//		} catch (Ili2dbException e) {
+//			e.printStackTrace();			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -145,87 +147,7 @@ public class App {
 			e.printStackTrace();
 		}
 		
-		
-//		try {
-//			// Parse the arguments and throw exception w/ help 
-//			// if some of the mandatory options are missing.
-//			CommandLineParser parser = new DefaultParser();
-//			CommandLine cmd = parser.parse(options, args);
-//		
-//			String dbhost = cmd.getOptionValue("dbhost", "localhost");
-//			params.put("dbhost", dbhost);
-//			
-//			String dbport = cmd.getOptionValue("dbport", "5432");
-//			params.put("dbport", dbport);
-//
-//			String dbdatabase = cmd.getOptionValue("dbdatabase");
-//			if (dbdatabase == null) {
-//				throw new MissingOptionException("dbdatabase");
-//			}
-//			params.put("dbdatabase", dbdatabase);
-//
-//			String dbusr = cmd.getOptionValue("dbusr");
-//			if (dbusr == null) {
-//				throw new MissingOptionException("dbusr");
-//			}
-//			params.put("dbusr", dbusr);
-//
-//			String dbpwd = cmd.getOptionValue("dbpwd");
-//			if (dbpwd == null) {
-//				throw new MissingOptionException("dbpwd");
-//			}
-//			params.put("dbpwd", dbpwd);
-//				
-//			String defaultSrsAuth = cmd.getOptionValue("defaultSrsAuth", "EPSG");
-//			params.put("defaultSrsAuth", defaultSrsAuth);
-//			
-//			String defaultSrsCode = cmd.getOptionValue("defaultSrsCode", "2056");
-//			params.put("defaultSrsCode", defaultSrsCode);
-//			
-//			String model = cmd.getOptionValue("model");
-//			if (model == null) {
-//				throw new MissingOptionException("model");
-//			}
-//			params.put("model", model);
-//			
-//			String dbschema = cmd.getOptionValue("dbschema");
-//			if (dbschema == null) {
-//				throw new MissingOptionException("dbschema");
-//			}
-//			
-//			// We create a single jdbc connection since we want all the work 
-//			// within one transaction.
-//			String dburl = "jdbc:postgresql://"+dbhost+":"+dbport+"/"+dbdatabase;
-//			Class.forName("org.postgresql.Driver");
-//	        Connection conn = DriverManager.getConnection(dburl, dbusr, dbpwd);
-//            conn.setAutoCommit(false);
-//
-//			// Create the two interlis schemas.
-//			Ili2pg ili2pg = new Ili2pg(params, conn);
-//			ili2pg.initSchema(dbschema);
-////			ili2pg.initSchema(dbschema + "_trans");
-//			
-//			conn.commit();
-//
-//			// Initialize the schema for the verification tables.
-////			PostgresqlDatabase PgObj = new PostgresqlDatabase(params);
-////			PgObj.initSchema(dbschema + "_verikation");
-//			
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		} catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		} catch (MissingOptionException e) {
-//			e.printStackTrace();
-//			HelpFormatter formatter = new HelpFormatter();
-//			formatter.printHelp("brw-initdb.jar", options);
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
-////		} catch (IOException e) {
-////			e.printStackTrace();
-////		}
-
+	
 		System.out.println("Hallo Stefan.");
 
 	}

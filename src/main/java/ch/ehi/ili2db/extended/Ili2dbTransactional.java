@@ -1,5 +1,3 @@
-package ch.ehi.ili2db.extended;
-
 /* This file is part of the ili2ora project.
  * For more information, please see <http://www.interlis.ch>.
  *
@@ -17,6 +15,7 @@ package ch.ehi.ili2db.extended;
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+package ch.ehi.ili2db.extended;
 
 import ch.ehi.basics.logging.EhiLogger;
 import ch.ehi.basics.logging.LogEvent;
@@ -294,13 +293,11 @@ public class Ili2dbTransactional {
 				EhiLogger.logState("dburl <"+url+">");
 				EhiLogger.logState("dbusr <"+dbusr+">");
 			  //DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
-			  try {
+//			  try {
 //				conn = DriverManager.getConnection(url, dbusr, dbpwd);
-//				  conn = config.getJdbcConnection2();
-//				} catch (SQLException ex) {
-			} catch (Exception ex) {
-				throw new Ili2dbException("failed to get db connection",ex);
-			}
+//			} catch (SQLException ex) {
+//				throw new Ili2dbException("failed to get db connection",ex);
+//			}
 			  logDBVersion(conn);
 			  
 			  // switch off auto-commit
@@ -343,7 +340,14 @@ public class Ili2dbTransactional {
 					mapping.readDeprecatedConfig(mappingConfig);
 				}
 				ModelElementSelector ms=new ModelElementSelector();
-				java.util.List<Element> eles=ms.getModelElements(td, td.getIli1Format()!=null && config.getDoItfLineTables(),Config.CREATE_ENUM_DEFS_MULTI.equals(config.getCreateEnumDefs()));
+				ArrayList<String> modelNames=new ArrayList<String>();
+				for(int modeli=0;modeli<modelv.getSizeFileEntry();modeli++){
+					if(modelv.getFileEntry(modeli).getKind()==ch.interlis.ili2c.config.FileEntryKind.ILIMODELFILE){
+						String m=modelv.getFileEntry(modeli).getFilename();
+						modelNames.add(m);				
+					}
+				}
+				java.util.List<Element> eles=ms.getModelElements(modelNames,td, td.getIli1Format()!=null && config.getDoItfLineTables(),Config.CREATE_ENUM_DEFS_MULTI.equals(config.getCreateEnumDefs()));
 				optimizeSqlNames(config,mapping,eles);
 
 				Generator gen=null;
@@ -516,23 +520,24 @@ public class Ili2dbTransactional {
 					}
 				}
 				
-				if(errs.hasSeenErrors()){
-					try {
-						conn.rollback();
-					} catch (SQLException e) {
-						EhiLogger.logError("rollback failed",e);
-					}
-					throw new Ili2dbException("...import failed");
-				}else{
+//				if(errs.hasSeenErrors()){
+//					try {
+//						conn.rollback();
+//					} catch (SQLException e) {
+//						EhiLogger.logError("rollback failed",e);
+//					}
+//					throw new Ili2dbException("...import failed");
+//				}else{
 //					try {
 //						conn.commit();
 //					} catch (SQLException e) {
 //						EhiLogger.logError("commit failed",e);
 //						throw new Ili2dbException("...import failed");
 //					}
-					logStatistics(td.getIli1Format()!=null,stat);
-					EhiLogger.logState("...import done");
-				}
+//					logStatistics(td.getIli1Format()!=null,stat);
+//					EhiLogger.logState("...import done");
+//				}
+				EhiLogger.logState("...import done");	
 			}finally{
 				if(conn!=null){
 //					try{
@@ -724,7 +729,6 @@ public class Ili2dbTransactional {
 				EhiLogger.logState("dburl <"+url+">");
 				EhiLogger.logState("dbusr <"+dbusr+">");
 //				conn = DriverManager.getConnection(url, dbusr, dbpwd);
-//				conn = config.getJdbcConnection2();
 			  logDBVersion(conn);
 			  
 			  // switch off auto-commit
@@ -733,7 +737,8 @@ public class Ili2dbTransactional {
 			}catch(SQLException ex){
 				throw new Ili2dbException(ex);
 			}
-						
+			
+			
 			// setup ilidirs+pathmap for ili2c
 			setupIli2cPathmap(config, appHome, ilifile,conn);
 			
@@ -783,7 +788,21 @@ public class Ili2dbTransactional {
 				mapping.readDeprecatedConfig(mappingConfigFilename);
 			}
 			ModelElementSelector ms=new ModelElementSelector();
-			java.util.List<Element> eles=ms.getModelElements(td, td.getIli1Format()!=null && config.getDoItfLineTables(),Config.CREATE_ENUM_DEFS_MULTI.equals(config.getCreateEnumDefs()));
+			ArrayList<String> modelNames=new ArrayList<String>();
+			if(models!=null){
+				String modelnames[]=models.split(";");
+				for(int modeli=0;modeli<modelnames.length;modeli++){
+					String m=modelnames[modeli];
+					if(m!=null){
+						if(m.equals(XTF)){
+							// ignore it
+						}else{
+							modelNames.add(m);				
+						}
+					}
+				}
+			}
+			java.util.List<Element> eles=ms.getModelElements(modelNames,td, td.getIli1Format()!=null && config.getDoItfLineTables(),Config.CREATE_ENUM_DEFS_MULTI.equals(config.getCreateEnumDefs()));
 			optimizeSqlNames(config,mapping,eles);
 
 			SqlGeometryConverter geomConverter=null;
@@ -874,7 +893,6 @@ public class Ili2dbTransactional {
 				throw new Ili2dbException(ex);
 			}
 			
-			EhiLogger.logState("...done");
 //			try{
 //				if(conn!=null){
 //					conn.close();
@@ -885,6 +903,8 @@ public class Ili2dbTransactional {
 //				EhiLogger.logError(ex);
 //			}
 				
+			EhiLogger.logState("...done");
+			
 			}finally{
 				ao.end();
 			}
@@ -1417,4 +1437,3 @@ public class Ili2dbTransactional {
 	}
 
 }
-

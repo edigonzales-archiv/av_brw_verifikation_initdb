@@ -80,7 +80,6 @@ public class Ili2pg {
 		String line = null;
 		StringBuilder sql = new StringBuilder();
 		
-		
 		// Create schema.
 		sql.append("CREATE SCHEMA " + dbschema + "; \n");
 		
